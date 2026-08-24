@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "desktop-bridge": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/desktop-bridge/dist/index.js"],
+      "env": {
+        "DESKTOP_BRIDGE_ROOTS": "/Users/YOU/Desktop,/Users/YOU/Documents,/Users/YOU/Downloads"
+      }
+    }
+  }
+}
