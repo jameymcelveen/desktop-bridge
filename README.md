@@ -97,6 +97,9 @@ Logs go to **stderr** only. Do not `console.log` in this process — stdout is t
 | `DESKTOP_BRIDGE_MAX_OUTPUT_BYTES` | `1048576` | Combined stdout+stderr capture cap. Excess output kills the process and sets `truncated`. |
 | `DESKTOP_BRIDGE_ALLOW_SHELL` | `true` | Set `false` to disable `run_command`. |
 | `DESKTOP_BRIDGE_RESTRICT_SHELL_CWD` | `true` | When true, `run_command` cwd must sit inside an allowed root. |
+| `DESKTOP_BRIDGE_STATUS_URL` | unset | Heartbeat POST URL for the status site (`…/api/heartbeat`). |
+| `DESKTOP_BRIDGE_STATUS_TOKEN` | unset | Bearer token matching the site’s `HEARTBEAT_TOKEN`. |
+| `DESKTOP_BRIDGE_STATUS_INTERVAL_MS` | `15000` | Heartbeat interval (5s–5m). |
 
 Copy [`.env.example`](./.env.example) for a commented template. The server reads **process env** (Claude Desktop `env` block), not a `.env` file.
 
@@ -147,6 +150,22 @@ npm test         # compile + node:test
 ```
 
 Layout: `src/lib/*` (path guard, process runner, glob/search), `src/tools/*` (MCP tools), `src/index.ts` (stdio entry).
+
+## Status site
+
+`web/` is a small Node app (no extra npm packages). Sign-in requires an `@mcelveen.us` email plus the site password (Railway/Vercel env `STATUS_PASSWORD`).
+
+The Mac running DesktopBridge POSTs a heartbeat; the dashboard shows **online** (last 45s), **stale**, or **offline**.
+
+- Site (Railway): https://status-production-84a0.up.railway.app/
+- Alias (Vercel): https://desktop-bridge-status.vercel.app/ (redirects to Railway)
+
+On the Mac, add to the MCP server env:
+
+```
+DESKTOP_BRIDGE_STATUS_URL=https://status-production-84a0.up.railway.app/api/heartbeat
+DESKTOP_BRIDGE_STATUS_TOKEN=<HEARTBEAT_TOKEN from Railway>
+```
 
 ## License
 

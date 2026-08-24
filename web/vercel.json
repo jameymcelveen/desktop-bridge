@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "destination": "https://status-production-84a0.up.railway.app/:path*",
+      "permanent": false
+    }
+  ]
+}

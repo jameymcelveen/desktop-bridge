@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DesktopBridge status</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="brand">
+        <span class="mark" aria-hidden="true">🌉</span>
+        <div>
+          <h1>DesktopBridge</h1>
+          <p class="tag">Mac presence · @mcelveen.us</p>
+        </div>
+      </header>
+
+      <section id="login" class="panel hidden">
+        <h2>Sign in</h2>
+        <p class="lede">Use an <code>@mcelveen.us</code> address. This page only shows whether the Mac running DesktopBridge last checked in.</p>
+        <form id="login-form">
+          <label>
+            Email
+            <input id="email" name="email" type="email" autocomplete="username" required placeholder="you@mcelveen.us" />
+          </label>
+          <label>
+            Password
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <p id="login-error" class="error" hidden></p>
+          <button type="submit">Continue</button>
+        </form>
+      </section>
+
+      <section id="dash" class="hidden">
+        <div class="toolbar">
+          <p id="who"></p>
+          <button id="logout" type="button" class="ghost">Sign out</button>
+        </div>
+        <article class="panel status-card">
+          <p class="state"><span id="dot" class="dot"></span><span id="state-label">Checking…</span></p>
+          <p id="seen" class="muted"></p>
+        </article>
+        <dl id="facts" class="facts panel"></dl>
+      </section>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

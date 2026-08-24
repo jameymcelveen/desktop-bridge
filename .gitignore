@@ -9,3 +9,5 @@ coverage/
 tmp/
 .idea/
 .vscode/
+.vercel
+.railway

@@ -14,6 +14,9 @@ export type BridgeConfig = {
   maxOutputBytes: number;
   allowShell: boolean;
   restrictShellCwd: boolean;
+  statusUrl: string | undefined;
+  statusToken: string | undefined;
+  statusIntervalMs: number;
 };
 
 function parseIntEnv(name: string, fallback: number, min: number, max: number): number {
@@ -118,5 +121,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): BridgeConfig {
     maxOutputBytes: parseIntEnv('DESKTOP_BRIDGE_MAX_OUTPUT_BYTES', 1024 * 1024, 1024, 20 * 1024 * 1024),
     allowShell: parseBoolEnv('DESKTOP_BRIDGE_ALLOW_SHELL', true),
     restrictShellCwd: parseBoolEnv('DESKTOP_BRIDGE_RESTRICT_SHELL_CWD', true),
+    statusUrl: env.DESKTOP_BRIDGE_STATUS_URL?.trim() || undefined,
+    statusToken: env.DESKTOP_BRIDGE_STATUS_TOKEN?.trim() || undefined,
+    statusIntervalMs: parseIntEnv('DESKTOP_BRIDGE_STATUS_INTERVAL_MS', 15_000, 5_000, 300_000),
   };
 }
