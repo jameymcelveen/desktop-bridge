@@ -5,6 +5,7 @@ import type { AppContext } from '../context.js';
 import { jsonResult, toolError } from '../lib/result.js';
 import { runCommand } from '../lib/process.js';
 import { assertMacOS } from '../lib/macos.js';
+import { lanAddresses, lookupPublicIp, summarizeNetwork } from '../lib/network.js';
 import { redactEnv } from '../lib/redact.js';
 
 function cpuTimes(): { idle: number; total: number } {
@@ -212,6 +213,25 @@ export function registerSystemTools(server: McpServer, ctx: AppContext): void {
         }
         const apps = parseOsaList(result.stdout.trim());
         return jsonResult({ count: apps.length, applications: apps });
+      } catch (err) {
+        return toolError(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    'get_network_info',
+    {
+      title: 'Get network info',
+      description:
+        'Public IPv4 (via ipify) and non-internal LAN IPv4 addresses. Use this to record the home WAN address on the status site.',
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
+    },
+    async () => {
+      try {
+        const lan = lanAddresses();
+        const publicIp = await lookupPublicIp();
+        return jsonResult(summarizeNetwork(lan, publicIp));
       } catch (err) {
         return toolError(err);
       }

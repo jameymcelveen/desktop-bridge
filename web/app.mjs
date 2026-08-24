@@ -4,6 +4,8 @@ import fsPromises from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { applyHomePatch, DEFAULT_HOME, sanitizeHome } from './home.mjs';
+import { getWeather } from './weather.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -20,8 +22,11 @@ const PUBLIC_DIR = resolvePublicDir();
 const DATA_FILE = process.env.RAILWAY_ENVIRONMENT
   ? path.join(__dirname, 'data', 'heartbeat.json')
   : path.join(os.tmpdir(), 'desktop-bridge-heartbeat.json');
+const HOME_FILE = process.env.RAILWAY_ENVIRONMENT
+  ? path.join(__dirname, 'data', 'home.json')
+  : path.join(os.tmpdir(), 'desktop-bridge-home.json');
 const COOKIE = 'db_session';
-const SESSION_DAYS = 7;
+const SESSION_DAYS = 30;
 const ONLINE_MS = 45_000;
 const EMAIL_DOMAIN = (process.env.ALLOWED_EMAIL_DOMAIN || 'mcelveen.us').toLowerCase();
 const MIME = {
@@ -31,10 +36,14 @@ const MIME = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json',
+  '.txt': 'text/plain; charset=utf-8',
 };
 
 /** @type {{ receivedAt: string, payload: Record<string, unknown> } | null} */
 let heartbeat = null;
+/** @type {ReturnType<typeof sanitizeHome>} */
+let home = sanitizeHome(DEFAULT_HOME);
 const loginAttempts = new Map();
 
 function sessionSecret() {
@@ -217,8 +226,33 @@ function loadHeartbeatFromDisk() {
   }
 }
 
-async function saveHeartbeat(payload) {
-  heartbeat = { receivedAt: new Date().toISOString(), payload };
+function loadHomeFromDisk() {
+  try {
+    home = sanitizeHome(JSON.parse(fs.readFileSync(HOME_FILE, 'utf8')));
+  } catch {
+    home = home ?? sanitizeHome(DEFAULT_HOME);
+  }
+}
+
+async function saveHome(next) {
+  home = sanitizeHome(next);
+  await fsPromises.mkdir(path.dirname(HOME_FILE), { recursive: true });
+  await fsPromises.writeFile(HOME_FILE, JSON.stringify(home, null, 2), 'utf8');
+  return home;
+}
+
+function normalizeIp(ip) {
+  if (!ip || ip === 'unknown') {
+    return undefined;
+  }
+  return ip.startsWith('::ffff:') ? ip.slice(7) : ip;
+}
+
+async function saveHeartbeat(payload, extra = {}) {
+  heartbeat = {
+    receivedAt: new Date().toISOString(),
+    payload: { ...payload, ...extra },
+  };
   await fsPromises.mkdir(path.dirname(DATA_FILE), { recursive: true });
   await fsPromises.writeFile(DATA_FILE, JSON.stringify(heartbeat), 'utf8');
 }
@@ -274,6 +308,41 @@ async function proxyStatusFromRailway() {
   return res.json();
 }
 
+async function proxyHomeFromRailway() {
+  const origin = railwayOrigin();
+  const secret = statusApiSecret();
+  if (!origin || !secret) {
+    return null;
+  }
+  const res = await fetch(`${origin}/api/internal/home`, {
+    headers: { 'x-status-secret': secret },
+  });
+  if (!res.ok) {
+    throw new Error(`upstream home ${res.status}`);
+  }
+  return sanitizeHome(await res.json());
+}
+
+async function pushHomeToRailway(payload) {
+  const origin = railwayOrigin();
+  const secret = statusApiSecret();
+  if (!origin || !secret) {
+    return null;
+  }
+  const res = await fetch(`${origin}/api/internal/home`, {
+    method: 'PUT',
+    headers: {
+      'x-status-secret': secret,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    throw new Error(`upstream home save ${res.status}`);
+  }
+  return sanitizeHome(await res.json());
+}
+
 async function serveStatic(urlPath, res) {
   let relative = decodeURIComponent(urlPath.split('?')[0] || '/');
   if (relative === '/') {
@@ -298,6 +367,7 @@ async function serveStatic(urlPath, res) {
 }
 
 loadHeartbeatFromDisk();
+loadHomeFromDisk();
 
 /**
  * @param {import('node:http').IncomingMessage} req
@@ -309,7 +379,7 @@ export async function handle(req, res) {
     const url = new URL(req.url || '/', `http://${host}`);
     const method = (req.method || 'GET').toUpperCase();
 
-    if (method === 'GET' && url.pathname === '/health') {
+    if (method === 'GET' && (url.pathname === '/health' || url.pathname === '/api/health')) {
       json(res, 200, { ok: true });
       return;
     }
@@ -328,7 +398,23 @@ export async function handle(req, res) {
         return;
       }
       if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
-        await saveHeartbeat(payload);
+        const extra = { reportedFromIp: normalizeIp(clientIp(req)) };
+        const origin = railwayOrigin();
+        if (origin) {
+          const upstream = await fetch(`${origin}/api/heartbeat`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${heartbeatToken()}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ...payload, ...extra }),
+          });
+          if (!upstream.ok && upstream.status !== 204) {
+            json(res, 502, { error: `Upstream heartbeat failed (${upstream.status})` });
+            return;
+          }
+        }
+        await saveHeartbeat(payload, extra);
         json(res, 204, {});
         return;
       }
@@ -399,6 +485,100 @@ export async function handle(req, res) {
       } catch (err) {
         json(res, 502, {
           error: 'Could not read bridge status',
+          detail: err instanceof Error ? err.message : String(err),
+        });
+      }
+      return;
+    }
+
+    if (method === 'GET' && url.pathname === '/api/internal/home') {
+      if (!secretsEqual(headerSecret(req), statusApiSecret())) {
+        json(res, 401, { error: 'Unauthorized' });
+        return;
+      }
+      loadHomeFromDisk();
+      json(res, 200, home);
+      return;
+    }
+
+    if (method === 'PUT' && url.pathname === '/api/internal/home') {
+      if (!secretsEqual(headerSecret(req), statusApiSecret())) {
+        json(res, 401, { error: 'Unauthorized' });
+        return;
+      }
+      const raw = await readBody(req);
+      let body;
+      try {
+        body = JSON.parse(raw || '{}');
+      } catch {
+        json(res, 400, { error: 'Invalid JSON' });
+        return;
+      }
+      json(res, 200, await saveHome(applyHomePatch(home, body)));
+      return;
+    }
+
+    if (method === 'GET' && url.pathname === '/api/home') {
+      const session = readSession(req);
+      if (!session) {
+        json(res, 401, { error: 'Not signed in' });
+        return;
+      }
+      try {
+        const upstream = await proxyHomeFromRailway();
+        json(res, 200, upstream ?? home);
+      } catch {
+        json(res, 200, home);
+      }
+      return;
+    }
+
+    if (method === 'PUT' && url.pathname === '/api/home') {
+      const session = readSession(req);
+      if (!session) {
+        json(res, 401, { error: 'Not signed in' });
+        return;
+      }
+      const raw = await readBody(req);
+      let body;
+      try {
+        body = JSON.parse(raw || '{}');
+      } catch {
+        json(res, 400, { error: 'Invalid JSON' });
+        return;
+      }
+      try {
+        const next = applyHomePatch(home, body);
+        await saveHome(next);
+        const upstream = await pushHomeToRailway(next).catch(() => null);
+        json(res, 200, upstream ?? next);
+      } catch (err) {
+        json(res, 502, {
+          error: 'Could not save home config',
+          detail: err instanceof Error ? err.message : String(err),
+        });
+      }
+      return;
+    }
+
+    if (method === 'GET' && url.pathname === '/api/weather') {
+      const session = readSession(req);
+      if (!session) {
+        json(res, 401, { error: 'Not signed in' });
+        return;
+      }
+      try {
+        const cfg = (await proxyHomeFromRailway().catch(() => null)) ?? home;
+        const weather = await getWeather({
+          ip: clientIp(req),
+          latitude: cfg.weather?.latitude,
+          longitude: cfg.weather?.longitude,
+          label: cfg.weather?.label,
+        });
+        json(res, 200, weather);
+      } catch (err) {
+        json(res, 502, {
+          error: 'Could not read weather',
           detail: err instanceof Error ? err.message : String(err),
         });
       }

@@ -1,5 +1,6 @@
 import os from 'node:os';
 import { SERVER_NAME, SERVER_VERSION, type BridgeConfig } from '../config.js';
+import { lanAddresses, lookupPublicIp, summarizeNetwork } from './network.js';
 import type { PathGuard } from './paths.js';
 
 export type HeartbeatPayload = {
@@ -15,9 +16,13 @@ export type HeartbeatPayload = {
   rootCount: number;
   loadAverage: number[];
   memory: { totalBytes: number; freeBytes: number };
+  publicIp?: string;
+  lanPrimary?: string;
+  lan: Array<{ iface: string; address: string; family: 'IPv4' }>;
 };
 
-export function buildHeartbeat(config: BridgeConfig, paths: PathGuard): HeartbeatPayload {
+export async function buildHeartbeat(config: BridgeConfig, paths: PathGuard): Promise<HeartbeatPayload> {
+  const net = summarizeNetwork(lanAddresses(), await lookupPublicIp());
   return {
     server: SERVER_NAME,
     version: SERVER_VERSION,
@@ -31,6 +36,9 @@ export function buildHeartbeat(config: BridgeConfig, paths: PathGuard): Heartbea
     rootCount: paths.roots.length,
     loadAverage: os.loadavg(),
     memory: { totalBytes: os.totalmem(), freeBytes: os.freemem() },
+    publicIp: net.publicIp,
+    lanPrimary: net.lanPrimary,
+    lan: net.lan,
   };
 }
 
@@ -43,14 +51,17 @@ export function startHeartbeat(config: BridgeConfig, paths: PathGuard): () => vo
   const token = config.statusToken;
 
   const tick = (): void => {
-    void fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(buildHeartbeat(config, paths)),
-    }).catch((err: unknown) => {
+    void (async () => {
+      const body = await buildHeartbeat(config, paths);
+      await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+    })().catch((err: unknown) => {
       console.error(
         `[desktop-bridge] heartbeat failed: ${err instanceof Error ? err.message : String(err)}`,
       );

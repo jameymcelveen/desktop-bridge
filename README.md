@@ -1,5 +1,10 @@
 # DesktopBridge 🌉
 
+[![CI](https://github.com/jameymcelveen/desktop-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/jameymcelveen/desktop-bridge/actions/workflows/ci.yml)
+[![Home](https://img.shields.io/website?url=https%3A%2F%2Fhome.jameymcelveen.com%2Fhealth&label=home)](https://home.jameymcelveen.com)
+[![Node](https://img.shields.io/badge/node-20.19%2B-3c873a)](https://nodejs.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 Local **Model Context Protocol** server for macOS. Claude (or any MCP host) talks to it over **stdio** and can:
 
 - Read, write, list, and search files inside **allowlisted directories**
@@ -151,20 +156,30 @@ npm test         # compile + node:test
 
 Layout: `src/lib/*` (path guard, process runner, glob/search), `src/tools/*` (MCP tools), `src/index.ts` (stdio entry).
 
-## Status site
+## Home
 
-`web/` is a small Node app (no extra npm packages). Sign-in requires an `@mcelveen.us` email plus the site password (Railway/Vercel env `STATUS_PASSWORD`).
+https://home.jameymcelveen.com is the browser start page (`web/`, no extra npm packages). Sign-in is `@mcelveen.us` plus `STATUS_PASSWORD`.
 
-The Mac running DesktopBridge POSTs a heartbeat; the dashboard shows **online** (last 45s), **stale**, or **offline**.
+What is there today, and the dump tray for whatever comes next:
 
-- Site (Railway): https://status-production-84a0.up.railway.app/
-- Alias (Vercel): https://desktop-bridge-status.vercel.app/ (redirects to Railway)
+| Piece | Notes |
+| --- | --- |
+| Search | Autofocus. Google / Kagi / DDG. Bangs: `!g` `!k` `!d` `!gh` `!yt` `!w` `!maps` |
+| Links | Same tiles as the local landing-page app, plus the properties. Edit as JSON in Settings |
+| Weather | Open-Meteo, °F, Florence SC unless you override coords |
+| Mac | DesktopBridge heartbeat: online / stale / offline, IPs, load |
+| Scratch | Autosaved notes |
+| Word | Daily verse |
+
+Set Chrome/Safari/Firefox homepage to `https://home.jameymcelveen.com` (browsers will not let the page do it for you). Session cookie lasts 30 days. `/` focuses search; `⌘K` too.
+
+Push to `main` runs CI, then deploys Vercel (the site) and Railway (heartbeat + saved config).
 
 On the Mac, add to the MCP server env:
 
 ```
-DESKTOP_BRIDGE_STATUS_URL=https://status-production-84a0.up.railway.app/api/heartbeat
-DESKTOP_BRIDGE_STATUS_TOKEN=<HEARTBEAT_TOKEN from Railway>
+DESKTOP_BRIDGE_STATUS_URL=https://home.jameymcelveen.com/api/heartbeat
+DESKTOP_BRIDGE_STATUS_TOKEN=<HEARTBEAT_TOKEN>
 ```
 
 ## License

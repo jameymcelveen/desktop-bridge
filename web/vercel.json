@@ -1,9 +1,10 @@
 {
-  "redirects": [
+  "framework": null,
+  "outputDirectory": "public",
+  "rewrites": [
     {
-      "source": "/:path*",
-      "destination": "https://status-production-84a0.up.railway.app/:path*",
-      "permanent": false
+      "source": "/health",
+      "destination": "/api/health"
     }
   ]
 }

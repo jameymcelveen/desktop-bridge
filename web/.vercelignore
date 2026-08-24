@@ -1,7 +1,5 @@
-public
-api
-app.mjs
-server.mjs
-email.test.mjs
-railway.toml
 data
+*.test.mjs
+railway.toml
+server.mjs
+.railway
