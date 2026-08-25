@@ -164,7 +164,7 @@ What is there today, and the dump tray for whatever comes next:
 
 | Piece | Notes |
 | --- | --- |
-| Search | Autofocus. Google / Kagi / DDG. Bangs: `!g` `!k` `!d` `!gh` `!yt` `!w` `!maps` |
+| Search | Autofocus. Google completions as you type (same suggestion feed as google.com). Kagi / DDG. Bangs: `!g` `!k` `!d` `!gh` `!yt` `!w` `!maps` |
 | Links | Same tiles as the local landing-page app, plus the properties. Edit as JSON in Settings |
 | Weather | Open-Meteo, °F, Florence SC unless you override coords |
 | Mac | DesktopBridge heartbeat: online / stale / offline, IPs, load |

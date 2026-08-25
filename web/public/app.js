@@ -10,6 +10,8 @@ const dateLine = document.querySelector('#date-line');
 const clockEl = document.querySelector('#clock');
 const searchForm = document.querySelector('#search-form');
 const searchInput = document.querySelector('#search');
+const suggestList = document.querySelector('#suggest-list');
+const searchBox = document.querySelector('.search-box');
 const enginesEl = document.querySelector('#engines');
 const linksEl = document.querySelector('#links');
 const weatherEl = document.querySelector('#weather');
@@ -63,6 +65,10 @@ let home = {
 };
 
 let notesTimer = 0;
+let suggestTimer = 0;
+let suggestAbort = null;
+let suggestions = [];
+let activeSuggest = -1;
 
 async function api(path, options = {}) {
   const res = await fetch(path, {
@@ -124,6 +130,12 @@ function renderEngines() {
       return btn;
     }),
   );
+  if (searchInput) {
+    searchInput.placeholder =
+      home.searchEngine === 'google'
+        ? 'Google search — type for completions'
+        : 'Search or !g !k !d !gh !yt !w !maps';
+  }
 }
 
 function renderLinks() {
@@ -303,6 +315,92 @@ function resolveSearch(raw) {
   return ENGINES[home.searchEngine]?.href(q) ?? ENGINES.google.href(q);
 }
 
+function closeSuggest() {
+  suggestions = [];
+  activeSuggest = -1;
+  suggestList?.replaceChildren();
+  suggestList?.classList.add('hidden');
+  searchBox?.classList.remove('open');
+  searchInput?.setAttribute('aria-expanded', 'false');
+}
+
+function renderSuggest() {
+  if (!suggestList) {
+    return;
+  }
+  if (suggestions.length === 0) {
+    closeSuggest();
+    return;
+  }
+  const typed = searchInput.value.trim();
+  suggestList.replaceChildren(
+    ...suggestions.map((phrase, index) => {
+      const li = document.createElement('li');
+      li.role = 'presentation';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = `suggest-${index}`;
+      btn.role = 'option';
+      btn.setAttribute('aria-selected', index === activeSuggest ? 'true' : 'false');
+      btn.className = index === activeSuggest ? 'active' : '';
+      const prefix = typed && phrase.toLowerCase().startsWith(typed.toLowerCase()) ? typed : '';
+      if (prefix) {
+        const rest = document.createElement('span');
+        rest.className = 'match';
+        rest.textContent = phrase.slice(prefix.length);
+        btn.append(document.createTextNode(prefix), rest);
+      } else {
+        btn.textContent = phrase;
+      }
+      btn.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+        goSearch(phrase);
+      });
+      li.append(btn);
+      return li;
+    }),
+  );
+  suggestList.classList.remove('hidden');
+  searchBox?.classList.add('open');
+  searchInput.setAttribute('aria-expanded', 'true');
+  if (activeSuggest >= 0) {
+    searchInput.setAttribute('aria-activedescendant', `suggest-${activeSuggest}`);
+  } else {
+    searchInput.removeAttribute('aria-activedescendant');
+  }
+}
+
+async function fetchSuggest(q) {
+  suggestAbort?.abort();
+  if (!q || /^https?:\/\//i.test(q) || q.startsWith('!')) {
+    closeSuggest();
+    return;
+  }
+  const ac = new AbortController();
+  suggestAbort = ac;
+  try {
+    const data = await api(`/api/suggest?q=${encodeURIComponent(q)}`, { signal: ac.signal });
+    if (searchInput.value.trim() !== q) {
+      return;
+    }
+    suggestions = data.suggestions || [];
+    activeSuggest = -1;
+    renderSuggest();
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      return;
+    }
+    closeSuggest();
+  }
+}
+
+function goSearch(raw) {
+  const href = resolveSearch(raw);
+  if (href) {
+    window.location.href = href;
+  }
+}
+
 async function refreshStatus() {
   renderStatus(await api('/api/status'));
 }
@@ -341,10 +439,51 @@ form?.addEventListener('submit', async (event) => {
 
 searchForm?.addEventListener('submit', (event) => {
   event.preventDefault();
-  const href = resolveSearch(searchInput.value);
-  if (href) {
-    window.location.href = href;
+  const chosen = activeSuggest >= 0 ? suggestions[activeSuggest] : searchInput.value;
+  closeSuggest();
+  goSearch(chosen);
+});
+
+searchInput?.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  clearTimeout(suggestTimer);
+  if (!q) {
+    closeSuggest();
+    return;
   }
+  suggestTimer = window.setTimeout(() => {
+    void fetchSuggest(q);
+  }, 80);
+});
+
+searchInput?.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    if (suggestions.length) {
+      event.preventDefault();
+      closeSuggest();
+    }
+    return;
+  }
+  if (!suggestions.length) {
+    return;
+  }
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    activeSuggest = (activeSuggest + 1) % suggestions.length;
+    renderSuggest();
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    activeSuggest = activeSuggest <= 0 ? suggestions.length - 1 : activeSuggest - 1;
+    renderSuggest();
+  } else if (event.key === 'Tab' && activeSuggest >= 0) {
+    event.preventDefault();
+    searchInput.value = suggestions[activeSuggest];
+    closeSuggest();
+  }
+});
+
+searchInput?.addEventListener('blur', () => {
+  window.setTimeout(closeSuggest, 120);
 });
 
 notesEl?.addEventListener('input', () => {
@@ -399,6 +538,10 @@ document.querySelector('#copy-home')?.addEventListener('click', async (event) =>
 
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
+    if (suggestions.length) {
+      closeSuggest();
+      return;
+    }
     closeSettings();
   }
   const typing =

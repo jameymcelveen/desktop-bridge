@@ -52,7 +52,23 @@
         </header>
 
         <form id="search-form" class="search">
-          <input id="search" type="search" name="q" placeholder="Search or !g !k !d !gh !yt !w !maps" autocomplete="off" />
+          <div class="search-box">
+            <input
+              id="search"
+              type="search"
+              name="q"
+              placeholder="Google search — type for completions"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="suggest-list"
+              aria-haspopup="listbox"
+            />
+            <ul id="suggest-list" class="suggest hidden" role="listbox"></ul>
+          </div>
           <div id="engines" class="engines"></div>
         </form>
 

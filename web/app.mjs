@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { applyHomePatch, DEFAULT_HOME, sanitizeHome } from './home.mjs';
+import { getSuggestions } from './suggest.mjs';
 import { getWeather } from './weather.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -555,6 +556,26 @@ export async function handle(req, res) {
       } catch (err) {
         json(res, 502, {
           error: 'Could not save home config',
+          detail: err instanceof Error ? err.message : String(err),
+        });
+      }
+      return;
+    }
+
+    if (method === 'GET' && url.pathname === '/api/suggest') {
+      const session = readSession(req);
+      if (!session) {
+        json(res, 401, { error: 'Not signed in' });
+        return;
+      }
+      try {
+        json(res, 200, {
+          query: url.searchParams.get('q') || '',
+          suggestions: await getSuggestions(url.searchParams.get('q')),
+        });
+      } catch (err) {
+        json(res, 502, {
+          error: 'Could not load suggestions',
           detail: err instanceof Error ? err.message : String(err),
         });
       }
