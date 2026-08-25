@@ -39,6 +39,10 @@ const MIME = {
   '.json': 'application/json; charset=utf-8',
   '.webmanifest': 'application/manifest+json',
   '.txt': 'text/plain; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.map': 'application/json',
 };
 
 /** @type {{ receivedAt: string, payload: Record<string, unknown> } | null} */
@@ -355,8 +359,10 @@ async function serveStatic(urlPath, res) {
     return;
   }
   try {
-    const data = await fsPromises.readFile(full);
-    const ext = path.extname(full);
+    const st = await fsPromises.stat(full);
+    const file = st.isDirectory() ? path.join(full, 'index.html') : full;
+    const data = await fsPromises.readFile(file);
+    const ext = path.extname(file);
     res.writeHead(200, {
       'Content-Type': MIME[ext] || 'application/octet-stream',
       'Cache-Control': ext === '.html' || ext === '.js' || ext === '.css' ? 'no-store' : 'public, max-age=3600',

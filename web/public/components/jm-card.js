@@ -7,11 +7,14 @@ export class JmCard extends LitElement {
 
   static styles = css`
     :host {
-      display: block;
+      display: flex;
+      flex-direction: column;
       height: 100%;
+      min-width: 0;
     }
     .card {
-      height: 100%;
+      flex: 1 1 auto;
+      box-sizing: border-box;
       padding: 1.15rem 1.2rem 1.25rem;
       border: 1px solid var(--line);
       border-radius: var(--radius);

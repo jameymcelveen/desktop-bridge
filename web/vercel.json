@@ -1,10 +1,15 @@
 {
   "framework": null,
   "outputDirectory": "public",
+  "buildCommand": "npm run build-storybook",
   "rewrites": [
     {
       "source": "/health",
       "destination": "/api/health"
+    },
+    {
+      "source": "/storybook",
+      "destination": "/storybook/index.html"
     }
   ],
   "headers": [

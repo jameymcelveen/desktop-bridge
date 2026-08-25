@@ -158,13 +158,13 @@ Layout: `src/lib/*` (path guard, process runner, glob/search), `src/tools/*` (MC
 
 ## Home
 
-https://home.jameymcelveen.com is the browser start page (`web/`). Widgets are Lit web components under `web/public/components/`, tagged `jm-*`. Lit is vendored into `web/public/vendor/` (`npm run vendor` / postinstall). Sign-in is `@mcelveen.us` plus `STATUS_PASSWORD`.
+https://home.jameymcelveen.com is the browser start page (`web/`). Widgets are Lit web components under `web/public/components/`, tagged `jm-*`. The isolated catalog is Storybook at https://home.jameymcelveen.com/storybook/ (`cd web && npm run storybook` locally). Lit is vendored into `web/public/vendor/` (`npm run vendor` / postinstall). Sign-in is `@mcelveen.us` plus `STATUS_PASSWORD`.
 
 What is there today, and the dump tray for whatever comes next:
 
 | Piece | Notes |
 | --- | --- |
-| Widgets | Lit web components, `jm-*` prefix (`jm-app`, `jm-search`, `jm-vin`, `jm-links`, `jm-weather`, `jm-mac`, `jm-scratch`, `jm-word`, `jm-settings`) |
+| Widgets | Lit web components, `jm-*` prefix. Isolated catalog: [Storybook](https://home.jameymcelveen.com/storybook/) |
 | Search | Autofocus. Google completions as you type (same suggestion feed as google.com). Kagi / DDG. Bangs: `!g` `!k` `!d` `!gh` `!yt` `!w` `!maps` |
 | Links | Same tiles as the local landing-page app, plus the properties. Edit as JSON in Settings |
 | Weather | Open-Meteo, °F, Florence SC unless you override coords |

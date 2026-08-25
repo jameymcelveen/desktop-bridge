@@ -10,7 +10,6 @@ export class JmScratch extends LitElement {
   static styles = css`
     :host {
       display: block;
-      grid-column: 1 / 3;
     }
     textarea {
       width: 100%;
@@ -30,11 +29,6 @@ export class JmScratch extends LitElement {
       color: var(--muted);
       margin: 0.5rem 0 0;
       font-size: 0.85rem;
-    }
-    @media (max-width: 860px) {
-      :host {
-        grid-column: auto;
-      }
     }
   `;
 

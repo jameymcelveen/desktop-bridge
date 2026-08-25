@@ -2,3 +2,5 @@ data/
 .vercel
 .railway
 .env*
+public/storybook
+

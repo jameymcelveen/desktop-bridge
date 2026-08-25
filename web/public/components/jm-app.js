@@ -1,5 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { api } from '../lib/api.js';
+import { boardStyles } from '../lib/board-styles.js';
 import './jm-login.js';
 import './jm-masthead.js';
 import './jm-search.js';
@@ -22,29 +23,24 @@ export class JmApp extends LitElement {
     ready: { state: true },
   };
 
-  static styles = css`
-    :host {
-      display: block;
-    }
-    .shell {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 28px 24px 64px;
-    }
-    .board {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr 1fr;
-      gap: 14px;
-    }
-    @media (max-width: 860px) {
+  static styles = [
+    boardStyles,
+    css`
+      :host {
+        display: block;
+      }
       .shell {
-        padding: 20px 16px 48px;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 28px 24px 64px;
       }
-      .board {
-        grid-template-columns: 1fr;
+      @media (max-width: 860px) {
+        .shell {
+          padding: 20px 16px 48px;
+        }
       }
-    }
-  `;
+    `,
+  ];
 
   constructor() {
     super();

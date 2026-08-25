@@ -116,6 +116,9 @@ export class JmSettings extends LitElement {
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 0.9em;
     }
+    a {
+      color: var(--accent);
+    }
   `;
 
   constructor() {
@@ -197,6 +200,8 @@ export class JmSettings extends LitElement {
         <div class="row">
           <button class="ghost" type="button" @click=${() => this.copyUrl()}>${this.copied ? 'Copied' : 'Copy URL'}</button>
         </div>
+        <h3>Component library</h3>
+        <p><a href="/storybook/" target="_blank" rel="noopener">Storybook</a> — jm-* widgets, isolated. Same origin as Home.</p>
       </aside>
     `;
   }

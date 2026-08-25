@@ -55,9 +55,22 @@ export class JmMasthead extends LitElement {
     button:hover {
       border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
     }
-    button.ghost {
-      background: transparent;
-      color: var(--muted);
+    a.lib {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      text-decoration: none;
+      border-radius: 10px;
+      background: var(--bg-elev);
+      color: var(--text);
+      border: 1px solid var(--line);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    a.lib:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
     }
     @media (max-width: 860px) {
       .clock {
@@ -98,6 +111,7 @@ export class JmMasthead extends LitElement {
         </div>
         <div class="right">
           <p class="clock">${this.clock.time}</p>
+          <a class="lib" href="/storybook/" title="Component library">SB</a>
           <button type="button" title="Settings" @click=${() => this.emit('open-settings')}>⚙</button>
           <button class="ghost" type="button" title="Sign out" @click=${() => this.emit('logout')}>⎋</button>
         </div>

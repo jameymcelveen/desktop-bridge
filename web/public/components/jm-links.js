@@ -11,7 +11,6 @@ export class JmLinks extends LitElement {
   static styles = css`
     :host {
       display: block;
-      grid-column: 1 / -1;
     }
     .grid {
       display: grid;
@@ -51,11 +50,6 @@ export class JmLinks extends LitElement {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-    }
-    @media (max-width: 860px) {
-      :host {
-        grid-column: auto;
-      }
     }
   `;
 

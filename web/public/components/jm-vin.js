@@ -48,7 +48,6 @@ export class JmVin extends LitElement {
   static styles = css`
     :host {
       display: block;
-      grid-column: 1 / -1;
     }
     form {
       display: flex;
@@ -268,11 +267,6 @@ export class JmVin extends LitElement {
     @keyframes pulse {
       50% {
         opacity: 0.45;
-      }
-    }
-    @media (max-width: 860px) {
-      :host {
-        grid-column: auto;
       }
     }
   `;
