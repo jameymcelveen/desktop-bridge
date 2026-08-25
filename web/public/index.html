@@ -11,137 +11,22 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="stylesheet" href="/styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "lit": "/vendor/lit/index.js",
+          "lit/": "/vendor/lit/",
+          "@lit/reactive-element": "/vendor/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "/vendor/@lit/reactive-element/",
+          "lit-html": "/vendor/lit-html/lit-html.js",
+          "lit-html/": "/vendor/lit-html/",
+          "lit-element/lit-element.js": "/vendor/lit-element/lit-element.js"
+        }
+      }
+    </script>
+    <script type="module" src="/components/jm-app.js?v=20260825vin"></script>
   </head>
   <body>
-    <main class="shell">
-      <section id="login" class="auth panel hidden">
-        <header class="brand">
-          <span class="mark" aria-hidden="true">🏠</span>
-          <div>
-            <h1>Home</h1>
-            <p class="tag">jameymcelveen · @mcelveen.us</p>
-          </div>
-        </header>
-        <h2>Sign in</h2>
-        <p class="lede">This is the browser start page. Use an <code>@mcelveen.us</code> address.</p>
-        <form id="login-form">
-          <label>
-            Email
-            <input id="email" name="email" type="email" autocomplete="username" required placeholder="you@mcelveen.us" />
-          </label>
-          <label>
-            Password
-            <input id="password" name="password" type="password" autocomplete="current-password" required />
-          </label>
-          <p id="login-error" class="error" hidden></p>
-          <button type="submit">Continue</button>
-        </form>
-      </section>
-
-      <section id="dash" class="hidden">
-        <header class="top">
-          <div>
-            <p id="hello" class="hello">Good day</p>
-            <p id="date-line" class="date"></p>
-          </div>
-          <div class="top-right">
-            <p id="clock" class="clock"></p>
-            <button id="settings-btn" class="icon-btn" type="button" title="Settings">⚙</button>
-            <button id="logout" class="icon-btn ghost" type="button" title="Sign out">⎋</button>
-          </div>
-        </header>
-
-        <form id="search-form" class="search">
-          <div class="search-box">
-            <input
-              id="search"
-              type="search"
-              name="q"
-              placeholder="Google search — type for completions"
-              autocomplete="off"
-              autocorrect="off"
-              spellcheck="false"
-              role="combobox"
-              aria-autocomplete="list"
-              aria-expanded="false"
-              aria-controls="suggest-list"
-              aria-haspopup="listbox"
-            />
-            <ul id="suggest-list" class="suggest hidden" role="listbox"></ul>
-          </div>
-          <div id="engines" class="engines"></div>
-        </form>
-
-        <div class="board">
-          <article class="card links-card">
-            <h2>Links</h2>
-            <div id="links" class="link-grid"></div>
-          </article>
-
-          <article class="card">
-            <h2>Weather</h2>
-            <div id="weather" class="weather"><p class="muted">Looking up…</p></div>
-          </article>
-
-          <article class="card">
-            <h2>Mac</h2>
-            <p class="state"><span id="dot" class="dot"></span><span id="state-label">Checking…</span></p>
-            <p id="seen" class="muted"></p>
-            <dl id="facts" class="facts"></dl>
-          </article>
-
-          <article class="card scratch-card">
-            <h2>Scratch</h2>
-            <textarea id="notes" placeholder="Dump it here. Scraps, URLs, the next widget idea. Autosaves."></textarea>
-            <p id="notes-status" class="muted"></p>
-          </article>
-
-          <article class="card">
-            <h2>Word</h2>
-            <blockquote id="word" class="word"></blockquote>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <div id="settings-backdrop" class="backdrop hidden"></div>
-    <aside id="settings" class="drawer hidden" aria-label="Settings">
-      <h2>Settings</h2>
-      <p class="muted">Signed in as <span id="who"></span></p>
-
-      <label>
-        Display name
-        <input id="display-name" maxlength="80" />
-      </label>
-      <label>
-        Search engine
-        <select id="search-engine">
-          <option value="google">Google</option>
-          <option value="kagi">Kagi</option>
-          <option value="ddg">DuckDuckGo</option>
-        </select>
-      </label>
-      <label>
-        Links JSON
-        <textarea id="links-json" spellcheck="false"></textarea>
-      </label>
-      <div class="row">
-        <button id="save-settings" type="button">Save</button>
-        <span id="settings-msg" class="muted"></span>
-      </div>
-
-      <h3>Make this the homepage</h3>
-      <p class="muted">Browsers will not let a page set itself. Copy the URL, then:</p>
-      <ul class="howto">
-        <li><strong>Chrome:</strong> chrome://settings/onStartup → Open a specific page → Add <code>https://home.jameymcelveen.com</code></li>
-        <li><strong>Safari:</strong> Settings → General → Homepage → the same URL. New windows / new tabs can also open it.</li>
-        <li><strong>Firefox:</strong> about:preferences#home → Homepage and new windows</li>
-      </ul>
-      <div class="row">
-        <button id="copy-home" type="button" class="ghost">Copy URL</button>
-      </div>
-    </aside>
-
-    <script src="/app.js" type="module"></script>
+    <jm-app></jm-app>
   </body>
 </html>

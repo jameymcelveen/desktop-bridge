@@ -6,6 +6,11 @@
     "node": ">=20"
   },
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "vendor": "node scripts/vendor-lit.mjs",
+    "postinstall": "node scripts/vendor-lit.mjs"
+  },
+  "dependencies": {
+    "lit": "^3.3.1"
   }
 }

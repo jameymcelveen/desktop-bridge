@@ -359,7 +359,7 @@ async function serveStatic(urlPath, res) {
     const ext = path.extname(full);
     res.writeHead(200, {
       'Content-Type': MIME[ext] || 'application/octet-stream',
-      'Cache-Control': ext === '.html' ? 'no-store' : 'public, max-age=3600',
+      'Cache-Control': ext === '.html' || ext === '.js' || ext === '.css' ? 'no-store' : 'public, max-age=3600',
     });
     res.end(data);
   } catch {
