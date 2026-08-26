@@ -1,7 +1,6 @@
 # DesktopBridge 🌉
 
 [![CI](https://github.com/jameymcelveen/desktop-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/jameymcelveen/desktop-bridge/actions/workflows/ci.yml)
-[![Home](https://img.shields.io/website?url=https%3A%2F%2Fhome.jameymcelveen.com%2Fhealth&label=home)](https://home.jameymcelveen.com)
 [![Node](https://img.shields.io/badge/node-20.19%2B-3c873a)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
@@ -102,8 +101,8 @@ Logs go to **stderr** only. Do not `console.log` in this process — stdout is t
 | `DESKTOP_BRIDGE_MAX_OUTPUT_BYTES` | `1048576` | Combined stdout+stderr capture cap. Excess output kills the process and sets `truncated`. |
 | `DESKTOP_BRIDGE_ALLOW_SHELL` | `true` | Set `false` to disable `run_command`. |
 | `DESKTOP_BRIDGE_RESTRICT_SHELL_CWD` | `true` | When true, `run_command` cwd must sit inside an allowed root. |
-| `DESKTOP_BRIDGE_STATUS_URL` | unset | Heartbeat POST URL for the status site (`…/api/heartbeat`). |
-| `DESKTOP_BRIDGE_STATUS_TOKEN` | unset | Bearer token matching the site’s `HEARTBEAT_TOKEN`. |
+| `DESKTOP_BRIDGE_STATUS_URL` | unset | Heartbeat POST URL (`…/api/heartbeat` on GUPPI). |
+| `DESKTOP_BRIDGE_STATUS_TOKEN` | unset | Bearer token matching GUPPI's `HEARTBEAT_TOKEN`. |
 | `DESKTOP_BRIDGE_STATUS_INTERVAL_MS` | `15000` | Heartbeat interval (5s–5m). |
 
 Copy [`.env.example`](./.env.example) for a commented template. The server reads **process env** (Claude Desktop `env` block), not a `.env` file.
@@ -156,33 +155,7 @@ npm test         # compile + node:test
 
 Layout: `src/lib/*` (path guard, process runner, glob/search), `src/tools/*` (MCP tools), `src/index.ts` (stdio entry).
 
-## Home
-
-https://home.jameymcelveen.com is the browser start page (`web/`). Widgets are Lit web components under `web/public/components/`, tagged `jm-*`. The isolated catalog is Storybook at https://home.jameymcelveen.com/storybook/ (`cd web && npm run storybook` locally). Lit is vendored into `web/public/vendor/` (`npm run vendor` / postinstall). Sign-in is `@mcelveen.us` plus `STATUS_PASSWORD`.
-
-What is there today, and the dump tray for whatever comes next:
-
-| Piece | Notes |
-| --- | --- |
-| Widgets | Lit web components, `jm-*` prefix. Isolated catalog: [Storybook](https://home.jameymcelveen.com/storybook/) |
-| Search | Autofocus. Google completions as you type (same suggestion feed as google.com). Kagi / DDG. Bangs: `!g` `!k` `!d` `!gh` `!yt` `!w` `!maps` |
-| Links | Same tiles as the local landing-page app, plus the properties. Edit as JSON in Settings |
-| Weather | Open-Meteo, °F, Florence SC unless you override coords |
-| Mac | DesktopBridge heartbeat: online / stale / offline, IPs, load |
-| VIN Sweep | Client-side NHTSA decode / recalls / complaints, plus human-only NICB / FL title / iSeeCars taps |
-| Scratch | Autosaved notes |
-| Word | Daily verse |
-
-Set Chrome/Safari/Firefox homepage to `https://home.jameymcelveen.com` (browsers will not let the page do it for you). Session cookie lasts 30 days. `/` focuses search; `⌘K` too.
-
-Push to `main` runs CI, then deploys Vercel (the site) and Railway (heartbeat + saved config).
-
-On the Mac, add to the MCP server env:
-
-```
-DESKTOP_BRIDGE_STATUS_URL=https://home.jameymcelveen.com/api/heartbeat
-DESKTOP_BRIDGE_STATUS_TOKEN=<HEARTBEAT_TOKEN>
-```
+The Home dashboard now lives at github.com/jameymcelveen/jamey-co → guppi/, deployed at guppi.jamey.co.
 
 ## License
 
