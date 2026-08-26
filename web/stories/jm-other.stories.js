@@ -20,6 +20,7 @@ export const Word = {
 };
 
 export const Login = {
+  parameters: { layout: 'centered' },
   render: () => html`<jm-login></jm-login>`,
 };
 
@@ -28,6 +29,7 @@ export const Search = {
 };
 
 export const Masthead = {
+  parameters: { layout: 'fullscreen' },
   render: () => html`<jm-masthead name="Jamey"></jm-masthead>`,
 };
 

@@ -34,9 +34,43 @@ export class JmApp extends LitElement {
         margin: 0 auto;
         padding: 28px 24px 64px;
       }
+      .shell.boarded {
+        padding-top: 18px;
+      }
+      .login-scene {
+        position: relative;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 28px 16px 48px;
+      }
+      .login-scene .wall,
+      .login-scene .shade {
+        position: absolute;
+        inset: 0;
+      }
+      .login-scene .wall {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 42%;
+      }
+      .login-scene .shade {
+        background:
+          linear-gradient(180deg, rgba(11, 12, 14, 0.28), rgba(11, 12, 14, 0.82) 58%, var(--bg)),
+          radial-gradient(900px 420px at 50% 18%, transparent, rgba(11, 12, 14, 0.45));
+      }
+      .login-scene jm-login {
+        position: relative;
+        z-index: 1;
+        width: min(26rem, 100%);
+      }
       @media (max-width: 860px) {
         .shell {
           padding: 20px 16px 48px;
+        }
+        .shell.boarded {
+          padding-top: 12px;
         }
       }
     `,
@@ -175,20 +209,22 @@ export class JmApp extends LitElement {
     }
     if (!this.email) {
       return html`
-        <div class="shell">
+        <div class="login-scene">
+          <img class="wall" src="/media/cover.jpg" alt="" />
+          <div class="shade"></div>
           <jm-login .error=${this.loginError} @login=${this.onLogin}></jm-login>
         </div>
       `;
     }
     return html`
-      <div class="shell">
-        <jm-masthead
-          .name=${this.home.displayName}
-          @open-settings=${() => {
-            this.settingsOpen = true;
-          }}
-          @logout=${this.logout}
-        ></jm-masthead>
+      <jm-masthead
+        .name=${this.home.displayName}
+        @open-settings=${() => {
+          this.settingsOpen = true;
+        }}
+        @logout=${this.logout}
+      ></jm-masthead>
+      <div class="shell boarded">
         <jm-search .engine=${this.home.searchEngine} @engine-change=${this.onEngine}></jm-search>
         <div class="board">
           <jm-vin></jm-vin>

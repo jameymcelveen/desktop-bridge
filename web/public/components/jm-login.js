@@ -9,27 +9,47 @@ export class JmLogin extends LitElement {
     :host {
       display: block;
       max-width: 26rem;
-      margin: 4rem auto 0;
+      margin: 0 auto;
     }
     .panel {
+      overflow: hidden;
       background: var(--bg-elev);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 1.15rem 1.2rem 1.25rem;
       backdrop-filter: blur(18px);
+    }
+    .cover {
+      height: 118px;
+      background: #12141a;
+    }
+    .cover img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 42%;
     }
     .brand {
       display: flex;
       gap: 0.85rem;
-      align-items: center;
-      margin-bottom: 1.5rem;
+      align-items: flex-end;
+      margin: -36px 1.2rem 1.15rem;
+      position: relative;
     }
-    .mark {
-      font-size: 2rem;
-      line-height: 1;
+    .avatar {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: 50% 12%;
+      background: #1a140c;
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--accent);
     }
     h1 {
       margin: 0;
+      padding-bottom: 2px;
       font-family: Palatino, 'Palatino Linotype', 'Iowan Old Style', Georgia, serif;
       font-size: 1.65rem;
       font-weight: 600;
@@ -41,6 +61,9 @@ export class JmLogin extends LitElement {
     .tag {
       margin: 0.15rem 0 0;
       font-size: 0.85rem;
+    }
+    .body {
+      padding: 0 1.2rem 1.25rem;
     }
     h2 {
       margin: 0 0 0.4rem;
@@ -119,27 +142,38 @@ export class JmLogin extends LitElement {
   render() {
     return html`
       <section class="panel">
+        <div class="cover">
+          <img src="/media/cover.jpg" alt="" />
+        </div>
         <header class="brand">
-          <span class="mark" aria-hidden="true">🏠</span>
+          <img
+            class="avatar"
+            src="/media/avatar.jpg"
+            width="72"
+            height="72"
+            alt="Profile portrait"
+          />
           <div>
             <h1>Home</h1>
             <p class="tag">jameymcelveen · @mcelveen.us</p>
           </div>
         </header>
-        <h2>Sign in</h2>
-        <p class="lede">This is the browser start page. Use an <code>@mcelveen.us</code> address.</p>
-        <form @submit=${this.submit}>
-          <label>
-            Email
-            <input name="email" type="email" autocomplete="username" required placeholder="you@mcelveen.us" />
-          </label>
-          <label>
-            Password
-            <input name="password" type="password" autocomplete="current-password" required />
-          </label>
-          ${this.error ? html`<p class="error">${this.error}</p>` : ''}
-          <button type="submit">Continue</button>
-        </form>
+        <div class="body">
+          <h2>Sign in</h2>
+          <p class="lede">This is the browser start page. Use an <code>@mcelveen.us</code> address.</p>
+          <form @submit=${this.submit}>
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="username" required placeholder="you@mcelveen.us" />
+            </label>
+            <label>
+              Password
+              <input name="password" type="password" autocomplete="current-password" required />
+            </label>
+            ${this.error ? html`<p class="error">${this.error}</p>` : ''}
+            <button type="submit">Continue</button>
+          </form>
+        </div>
       </section>
     `;
   }

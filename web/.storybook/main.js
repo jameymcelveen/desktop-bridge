@@ -1,6 +1,7 @@
 /** @type { import('@storybook/web-components-vite').StorybookConfig } */
 const config = {
   stories: ['../stories/**/*.stories.js'],
+  staticDirs: [{ from: '../public/media', to: '/media' }],
   addons: ['@storybook/addon-essentials'],
   framework: {
     name: '@storybook/web-components-vite',
